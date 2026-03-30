@@ -117,10 +117,10 @@ const industries = [
 ];
 
 const faqs = [
-  { q: "What is The Morning BriefBrevityng BriefBrevityligence platform that synthesizes the most important news across 7 major industries into concise audio briefings and PDF summaries. Think of it as your personalized newsroom — delivered every morning before 7 AM." },
+  { q: "What is BrevityBrevityng BriefBrevityligence platform that synthesizes the most important news across 7 major industries into concise audio briefings and PDF summaries. Think of it as your personalized newsroom — delivered every morning before 7 AM." },
   { q: "How long are the audio briefings?", a: "Each industry briefing is 5–10 minutes. The full cross-industry 'Everything Brief' runs about 20–25 minutes — perfect for a morning commute." },
   { q: "Can I customize what I receive?", a: "Absolutely. Choose specific industries, subsections, or opt into the full package. You control the format too — audio, PDF, or both." },
-  { q: "Is The Morning BriefBrevityffer a free tier with access to 2 industry briefings per day. Premium subscribers get unlimited access, the Everything Brief, and early delivery." },
+  { q: "Is BrevityBrevityffer a free tier with access to 2 industry briefings per day. Premium subscribers get unlimited access, the Everything Brief, and early delivery." },
   { q: "How is this different from other newsletters?", a: "We don't just aggregate headlines. Our briefings are synthesized narratives with context, connecting dots across industries. Plus, audio-first delivery means you can consume it hands-free." },
   { q: "What time are briefings delivered?", a: "Premium briefings land by 6 AM ET. Free tier briefings are available by 8 AM ET." },
 ];
@@ -1215,7 +1215,7 @@ export default function MorningBrief() {
         <nav className={`navbar ${scrolled ? "scrolled" : ""}`}>
           <div className="logo">
             <span className="logo-dot" />
-            The Morning BriefBrevity
+            BrevityBrevity
           <ul className="nav-links">
             <li><a href="#industries">Industries</a></li>
             <li><a href="#how-it-works">How It Works</a></li>
@@ -1235,7 +1235,7 @@ export default function MorningBrief() {
             Intelligence <span className="gold">Brief</span>
           </h1>
           <p>
-            Cut through the noise. The Morning BriefBrevitystories across technology, finance, healthcare, energy, real estate, politics, and startups — delivered as a concise audio briefing and PDF before your first coffee.
+            Cut through the noise. BrevityBrevitystories across technology, finance, healthcare, energy, real estate, politics, and startups — delivered as a concise audio briefing and PDF before your first coffee.
           </p>
           <div className="hero-actions">
             <a href="#subscribe" className="hero-btn primary">
@@ -1288,7 +1288,7 @@ export default function MorningBrief() {
             <div className="section-badge"><MousePointerClick size={14} /> Navigate Like a Pro</div>
             <h2 className="section-heading">How It Works</h2>
             <p className="section-desc" style={{ margin: "0 auto" }}>
-              The Morning BriefBrevityet you informed in minutes, not hours. Here's how to make the most of it.
+              BrevityBrevityet you informed in minutes, not hours. Here's how to make the most of it.
             </p>
           </div>
           <div className="howto-grid">
@@ -1319,9 +1319,9 @@ export default function MorningBrief() {
         {/* FOOTER */}
         <footer className="footer">
           <div className="footer-logo">
-            <span className="logo-dot" /> The Morning BriefBrevity
+            <span className="logo-dot" /> BrevityBrevity
           <p>Your daily intelligence brief — across every industry that matters.</p>
-          <p style={{ marginTop: 8, fontSize: "0.78rem" }}>© 2026 The Morning BriefBrevityrved.</p>
+          <p style={{ marginTop: 8, fontSize: "0.78rem" }}>© 2026 BrevityBrevityrved.</p>
         </footer>
       </div>
     </>
