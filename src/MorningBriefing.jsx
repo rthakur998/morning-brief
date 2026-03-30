@@ -1,951 +1,1331 @@
 import { useState, useEffect, useRef } from "react";
+import {
+  Cpu, TrendingUp, HeartPulse, Zap, Building2, Landmark, Rocket,
+  Play, Pause, Volume2, ChevronDown, ChevronRight, Mail, Check,
+  ArrowRight, Headphones, FileText, Sparkles, Menu, X, Clock,
+  Globe, BarChart3, Shield, Users, BookOpen, HelpCircle, MousePointerClick,
+  Star, Bell, Download, Eye, Layers, AudioLines
+} from "lucide-react";
 
-const INDUSTRIES = [
-  { id: "tech", label: "Tech & AI", icon: "⚡" },
-  { id: "finance", label: "Finance", icon: "◆" },
-  { id: "health", label: "Healthcare", icon: "+" },
-  { id: "energy", label: "Energy", icon: "◎" },
-  { id: "realestate", label: "Real Estate", icon: "▲" },
-  { id: "politics", label: "Politics", icon: "★" },
-  { id: "startups", label: "Startups & VC", icon: "●" },
+/* ───────────────────── INDUSTRY DATA ───────────────────── */
+const industries = [
+  {
+    id: "tech",
+    name: "Technology & AI",
+    icon: Cpu,
+    gradient: "from-blue-500 to-cyan-400",
+    accent: "#3b82f6",
+    accentLight: "rgba(59,130,246,0.12)",
+    tagline: "Silicon Valley to Shenzhen — decoded daily",
+    subsections: ["Artificial Intelligence", "Cloud & Infrastructure", "Cybersecurity", "Consumer Tech"],
+    stories: [
+      { title: "OpenAI Unveils GPT-5 with Real-Time Reasoning", tag: "AI", time: "2h ago" },
+      { title: "Apple's Mixed Reality Headset Hits 10M Sales", tag: "Consumer", time: "4h ago" },
+      { title: "AWS Launches Quantum Computing Service", tag: "Cloud", time: "5h ago" },
+    ],
+  },
+  {
+    id: "finance",
+    name: "Finance & Markets",
+    icon: TrendingUp,
+    gradient: "from-emerald-500 to-teal-400",
+    accent: "#10b981",
+    accentLight: "rgba(16,185,129,0.12)",
+    tagline: "Markets, macro, and money moves",
+    subsections: ["Equities & Indices", "Fixed Income", "Commodities", "Crypto & Digital Assets"],
+    stories: [
+      { title: "Fed Signals Rate Cut Timeline for Q3", tag: "Macro", time: "1h ago" },
+      { title: "Bitcoin Surges Past $150K on ETF Inflows", tag: "Crypto", time: "3h ago" },
+      { title: "S&P 500 Hits All-Time High on Tech Rally", tag: "Equities", time: "4h ago" },
+    ],
+  },
+  {
+    id: "health",
+    name: "Healthcare & Biotech",
+    icon: HeartPulse,
+    gradient: "from-rose-500 to-pink-400",
+    accent: "#f43f5e",
+    accentLight: "rgba(244,63,94,0.12)",
+    tagline: "Breakthroughs from bench to bedside",
+    subsections: ["Drug Development", "Digital Health", "Genomics", "Health Policy"],
+    stories: [
+      { title: "Moderna's Cancer Vaccine Enters Phase 3 Trials", tag: "Biotech", time: "2h ago" },
+      { title: "AI Diagnostics Now Match Specialist Accuracy", tag: "Digital", time: "5h ago" },
+      { title: "Gene Therapy Approved for Sickle Cell Disease", tag: "Genomics", time: "6h ago" },
+    ],
+  },
+  {
+    id: "energy",
+    name: "Energy & Climate",
+    icon: Zap,
+    gradient: "from-amber-500 to-yellow-400",
+    accent: "#f59e0b",
+    accentLight: "rgba(245,158,11,0.12)",
+    tagline: "Powering the transition, tracking the grid",
+    subsections: ["Renewables", "Oil & Gas", "Carbon Markets", "Grid & Storage"],
+    stories: [
+      { title: "Global Solar Capacity Surpasses Coal for First Time", tag: "Renewables", time: "1h ago" },
+      { title: "EU Carbon Price Hits €120 Per Tonne", tag: "Carbon", time: "3h ago" },
+      { title: "Tesla Megapack Dominates Utility Storage Market", tag: "Storage", time: "5h ago" },
+    ],
+  },
+  {
+    id: "realestate",
+    name: "Real Estate",
+    icon: Building2,
+    gradient: "from-violet-500 to-purple-400",
+    accent: "#8b5cf6",
+    accentLight: "rgba(139,92,246,0.12)",
+    tagline: "Commercial, residential, and everything in between",
+    subsections: ["Commercial", "Residential", "REITs", "PropTech"],
+    stories: [
+      { title: "Office Vacancy Rates Drop for First Time Since 2020", tag: "Commercial", time: "2h ago" },
+      { title: "Zillow: Median Home Price Crosses $450K", tag: "Residential", time: "4h ago" },
+      { title: "Proptech Startup Raises $500M Series D", tag: "PropTech", time: "6h ago" },
+    ],
+  },
+  {
+    id: "politics",
+    name: "Politics & Policy",
+    icon: Landmark,
+    gradient: "from-red-500 to-orange-400",
+    accent: "#ef4444",
+    accentLight: "rgba(239,68,68,0.12)",
+    tagline: "Policy shifts that move markets and industries",
+    subsections: ["U.S. Policy", "Global Affairs", "Regulation", "Trade & Tariffs"],
+    stories: [
+      { title: "New AI Regulation Framework Passes Senate", tag: "Regulation", time: "1h ago" },
+      { title: "US-China Trade Talks Resume in Geneva", tag: "Trade", time: "3h ago" },
+      { title: "Infrastructure Bill Allocates $200B to Clean Energy", tag: "Policy", time: "5h ago" },
+    ],
+  },
+  {
+    id: "startups",
+    name: "Startups & VC",
+    icon: Rocket,
+    gradient: "from-sky-500 to-indigo-400",
+    accent: "#0ea5e9",
+    accentLight: "rgba(14,165,233,0.12)",
+    tagline: "Funding rounds, founders, and the future",
+    subsections: ["Seed & Series A", "Growth Stage", "IPOs & Exits", "VC Trends"],
+    stories: [
+      { title: "YC W26 Batch Features Record 400 Startups", tag: "Seed", time: "2h ago" },
+      { title: "Stripe Competitor Hits $10B Valuation", tag: "Growth", time: "4h ago" },
+      { title: "VC Funding Rebounds: Q1 Hits $85B Globally", tag: "VC Trends", time: "5h ago" },
+    ],
+  },
 ];
 
-const BRIEFINGS = {
-  tech: [
-    {
-      tag: "BREAKING",
-      tagColor: "#E8453C",
-      headline: "Anthropic's Unreleased \"Claude Mythos\" Model Exposed in Data Leak",
-      summary: "A configuration error inadvertently published ~3,000 draft assets revealing \"Claude Mythos\" — a model tier above Anthropic's current Opus flagship with reported step-change capabilities in coding, academic reasoning, and cybersecurity. Anthropic confirmed the model's existence but warned it poses unprecedented cybersecurity risks with no near-term public release planned. The iShares Tech-Software ETF fell ~3% on the news.",
-      time: "2h ago",
-      readTime: "3 min",
-      source: "Fortune · CoinDesk",
-    },
-    {
-      tag: "BREAKTHROUGH",
-      tagColor: "#0A84FF",
-      headline: "Google's TurboQuant Crushes AI Inference Memory Costs by 6×",
-      summary: "Google Research unveiled TurboQuant, a KV-cache compression method reducing inference memory usage by 6× with zero measurable accuracy loss and up to 8× faster attention computation on H100 GPUs. Memory chip stocks tanked — SK Hynix fell 6%, Samsung nearly 5%. Cloudflare's CEO called it \"Google's DeepSeek moment.\"",
-      time: "6h ago",
-      readTime: "2 min",
-      source: "Google Research · CNBC · TechCrunch",
-    },
-    {
-      tag: "DEALS",
-      tagColor: "#BF5AF2",
-      headline: "SoftBank Locks In $40B Bridge Loan to Fund OpenAI Empire",
-      summary: "SoftBank secured a $40 billion bridge loan arranged by JPMorgan, Goldman Sachs, and three Japanese megabanks to fund continued OpenAI investments. OpenAI's ChatGPT ads pilot has already crossed $100M in annualized revenue within six weeks, with 600+ advertisers and self-serve access planned for April.",
-      time: "8h ago",
-      readTime: "2 min",
-      source: "People News · Bloomberg",
-    },
-    {
-      tag: "REGULATION",
-      tagColor: "#FF9F0A",
-      headline: "White House Sends Congress a Unified National AI Regulatory Framework",
-      summary: "The proposal establishes a risk-tiered compliance model with mandatory audits for high-risk AI in healthcare, credit, employment, and critical infrastructure. It controversially proposes preempting 40+ state-level AI laws. Competing congressional bills set up a major legislative battle in Q2.",
-      time: "1d ago",
-      readTime: "3 min",
-      source: "NYU Shanghai RITS · Congress.gov",
-    },
-    {
-      tag: "WORKFORCE",
-      tagColor: "#FF453A",
-      headline: "AI-Driven Tech Layoffs Surge Past 51,000 in Q1 2026",
-      summary: "Over 51,600 workers have been cut across 102 events this year — ~20% explicitly attributed to AI automation, up sharply from <8% in 2025. Block's 4,000-person reduction was the largest AI-attributed layoff in corporate history. At current pace, analysts project 265,000 tech layoffs by year-end.",
-      time: "1d ago",
-      readTime: "2 min",
-      source: "SkillSyncer · Tech Insider",
-    },
-    {
-      tag: "LEGAL",
-      tagColor: "#FF6482",
-      headline: "Meta and Google Hit With Landmark Social Media Liability Verdicts",
-      summary: "A New Mexico jury ordered Meta to pay $375 million for enabling child exploitation, while a California jury found both Meta and YouTube liable for social media addiction in minors. Meta's stock dropped ~12% over three days, with ~2,000 similar lawsuits pending nationwide.",
-      time: "2d ago",
-      readTime: "2 min",
-      source: "CNBC · NPR · NBC News",
-    },
-  ],
-  finance: [
-    {
-      tag: "MARKETS",
-      tagColor: "#E8453C",
-      headline: "Dow Enters Correction as Five-Week Selloff Deepens",
-      summary: "The Dow fell 793 points (−1.73%) to 45,167, officially entering correction territory at 10%+ below its recent high. The S&P 500 dropped to 6,369 (a seven-month low), and the Nasdaq fell 2.15%. Nvidia, Microsoft, Amazon, and Meta led losses in a broad tech rout driven by surging oil and the Iran conflict.",
-      time: "1h ago",
-      readTime: "2 min",
-      source: "Bloomberg · CNBC",
-    },
-    {
-      tag: "FED",
-      tagColor: "#0A84FF",
-      headline: "Fed Holds Rates — But Markets Begin Pricing In a Potential Hike",
-      summary: "The FOMC voted 11-1 to hold at 3.5%–3.75%, with the dot plot projecting only one cut in 2026. Futures traders pushed the probability of a rate increase above 50% for the first time as the OECD raised its U.S. inflation forecast to 4.2%. Import prices jumped 1.3% in February — the largest since March 2022.",
-      time: "4h ago",
-      readTime: "3 min",
-      source: "Federal Reserve · OECD · CME FedWatch",
-    },
-    {
-      tag: "COMMODITIES",
-      tagColor: "#FF9F0A",
-      headline: "Oil Shock Fuels Stagflation Fears With Brent Above $107",
-      summary: "Brent crude hit $107.81/bbl — up roughly 50% since January — as the Strait of Hormuz remains effectively blocked. The IEA authorized a historic 400 million barrel emergency reserve release. Moody's chief economist warned sustained prices for \"weeks, not months\" would make a recession difficult to avoid.",
-      time: "3h ago",
-      readTime: "2 min",
-      source: "Fortune · IEA · Moody's",
-    },
-    {
-      tag: "CRYPTO",
-      tagColor: "#BF5AF2",
-      headline: "Bitcoin Slides to $66,587 in Broad Risk-Off Rotation",
-      summary: "Bitcoin dropped ~$2,860 in 24 hours to $66,587, down from the $73K–$74K range earlier in March and roughly $20,660 lower year-over-year. Analysts flag $74,567–$79,289 as a critical reclaim zone; failure there could push BTC toward its yearly low near $60K.",
-      time: "1h ago",
-      readTime: "2 min",
-      source: "CoinDesk · CoinGecko",
-    },
-    {
-      tag: "M&A",
-      tagColor: "#30D158",
-      headline: "Sumitomo Mitsui Prepares Potential Jefferies Takeover",
-      summary: "Japan's SMFG is readying a possible takeover of Jefferies Financial Group ($8.2B market cap), building on its existing ~20% economic stake. Jefferies shares surged up to 10% premarket. Global deal-making hit a record $4.9 trillion in 2025, with 2026 expected to sustain megadeal activity.",
-      time: "12h ago",
-      readTime: "2 min",
-      source: "Financial Times · CNBC",
-    },
-  ],
-  health: [
-    {
-      tag: "FDA",
-      tagColor: "#0A84FF",
-      headline: "FDA Clears Four Novel Drugs in a Rapid March Approval Sprint",
-      summary: "Corcept's Lifyorli won approval for platinum-resistant ovarian cancer, Denali's Avlayah for Hunter Syndrome received accelerated approval, GSK's Lynavoy cleared for cholestatic pruritus, and J&J's Icotyde — the first oral IL-23 receptor antagonist — was approved for plaque psoriasis.",
-      time: "1d ago",
-      readTime: "3 min",
-      source: "Drugs.com · PharmaVoice",
-    },
-    {
-      tag: "BREAKING",
-      tagColor: "#E8453C",
-      headline: "Eli Lilly's Oral Obesity Pill Orforglipron Nears Imminent FDA Decision",
-      summary: "The once-daily oral GLP-1 agonist is expected to receive an FDA ruling as early as this week after being granted a Commissioner's National Priority Review Voucher. Self-pay pricing starts at $149/month, with Medicare access at $50/month from April 1. GlobalData projects $13B in sales by 2031.",
-      time: "4h ago",
-      readTime: "3 min",
-      source: "BioSpace · BioPharma Dive · Eli Lilly",
-    },
-    {
-      tag: "CLINICAL",
-      tagColor: "#30D158",
-      headline: "AstraZeneca's First-in-Class COPD Drug Hits Primary Endpoints",
-      summary: "Positive Phase 3 results from the OBERON and TITANIA trials of tozorakimab showed significant reduction in COPD exacerbation rates by targeting the IL-33 pathway — a mechanism where multiple competitors have failed. AstraZeneca shares rose 2.7%. Regulatory filings planned by end of Q2.",
-      time: "6h ago",
-      readTime: "2 min",
-      source: "FinancialContent · AstraZeneca",
-    },
-    {
-      tag: "PUBLIC HEALTH",
-      tagColor: "#FF453A",
-      headline: "U.S. Measles Outbreak Surges Past 1,487 Cases",
-      summary: "The CDC has confirmed 1,487 cases across 32 jurisdictions in 2026, on pace to eclipse 2025's record. South Carolina alone accounts for nearly 1,000 cases. Approximately 92% of cases are in unvaccinated individuals, and MMR vaccination coverage has dropped below the herd immunity threshold.",
-      time: "8h ago",
-      readTime: "2 min",
-      source: "Healthline · U.S. News",
-    },
-    {
-      tag: "POLICY",
-      tagColor: "#FF9F0A",
-      headline: "Medicaid Cuts and ACA Subsidy Expiration Reshape Coverage Landscape",
-      summary: "The Working Families Tax Cuts Act cut over $1 trillion from health insurance spending over a decade. Enhanced ACA premium tax credits expired Dec 31, 2025. The Urban Institute estimates 7.3 million fewer Americans will receive subsidized coverage in 2026.",
-      time: "1d ago",
-      readTime: "3 min",
-      source: "STAT News · U.S. News",
-    },
-  ],
-  energy: [
-    {
-      tag: "CRISIS",
-      tagColor: "#E8453C",
-      headline: "Strait of Hormuz Crisis Triggers Largest Oil Supply Disruption in Modern History",
-      summary: "The U.S.-Israel operation against Iran has effectively closed the strait through which ~20% of global oil transits. Gulf production dropped by at least 10 million b/d. Brent surged from ~$63/bbl at the year's start to a peak of $126 before settling near $108. California gas approaching $9/gal.",
-      time: "1h ago",
-      readTime: "3 min",
-      source: "EIA · CFR · IEA",
-    },
-    {
-      tag: "NUCLEAR",
-      tagColor: "#0A84FF",
-      headline: "40 Nations Pledge to Triple Nuclear Capacity by 2050",
-      summary: "At the Paris Nuclear Energy Summit, China and Brazil joined the tripling pledge. Belgium reversed its nuclear phase-out, Italy lifted its ban, and Germany recognized nuclear as green energy. The Trump administration signed four executive orders targeting 10 new reactors. A record 62 reactors are now under construction globally.",
-      time: "1d ago",
-      readTime: "3 min",
-      source: "Wood Mackenzie · Carbon Brief",
-    },
-    {
-      tag: "EV TECH",
-      tagColor: "#30D158",
-      headline: "BYD's Blade Battery 2.0 Redefines EV Charging — 9-Minute Full Charge",
-      summary: "The second-generation Blade Battery charges from 10% to 97% in just 9 minutes via 1,500 kW Flash Charging stations, even achieving 20–97% in 12 minutes at −30°C. The Denza Z9GT achieves 1,036 km range on a single charge. BYD plans 20,000 Flash Charging stations in China by year-end.",
-      time: "3d ago",
-      readTime: "2 min",
-      source: "CarNewsChina · Neware",
-    },
-    {
-      tag: "COMPETITION",
-      tagColor: "#BF5AF2",
-      headline: "BYD Overtakes Tesla Globally, But Both Face Market Headwinds",
-      summary: "BYD sold 2.26 million EVs in 2025 (+28%) versus Tesla's 1.64 million (−8.6%, its second annual decline). However, BYD's Feb 2026 China sales fell 41% YoY while Tesla's rose 35%. Tesla's energy storage segment surged 25% to $3.84B and FSD subscriptions grew 38% to 1.1M users.",
-      time: "1d ago",
-      readTime: "2 min",
-      source: "CNBC · 24/7 Wall St.",
-    },
-    {
-      tag: "STRATEGY",
-      tagColor: "#FF9F0A",
-      headline: "China's Clean Energy Strategy \"Vindicated\" as Renewables Cushion Oil Shock",
-      summary: "China's 15th Five-Year Plan places renewables centre stage. The Hormuz crisis highlighted the national security benefits of clean power — China had been stockpiling crude ahead of the conflict, building a 1.4B barrel reserve. U.S. electricity demand is expected to grow 3.1% in 2027, driven by data centers.",
-      time: "1d ago",
-      readTime: "2 min",
-      source: "Carbon Brief · EIA",
-    },
-  ],
-  realestate: [
-    {
-      tag: "RATES",
-      tagColor: "#E8453C",
-      headline: "Mortgage Rates Spike to Six-Month Highs, Disrupting Spring Season",
-      summary: "The 30-year fixed rate averaged 6.38% for the week ending March 26, up 16 basis points week-over-week and the fourth consecutive increase. Daily rates reached as high as 6.49%. This reverses February's optimism when rates briefly dipped below 6% for the first time in three years.",
-      time: "4h ago",
-      readTime: "2 min",
-      source: "Freddie Mac · Bankrate",
-    },
-    {
-      tag: "BUYERS",
-      tagColor: "#FF9F0A",
-      headline: "Homebuying Contract Cancellations Hit a Record High",
-      summary: "Over 42,000 contracts fell through in February — nearly 14% of all homes under contract — the highest for any February since Redfin began tracking in 2017. Roughly 42% of February transactions included seller concessions, up from 31% a year prior.",
-      time: "1d ago",
-      readTime: "2 min",
-      source: "Redfin · Resiclub Analytics",
-    },
-    {
-      tag: "INVENTORY",
-      tagColor: "#30D158",
-      headline: "Housing Inventory Rebuilds Toward Pre-Pandemic Levels",
-      summary: "Active listings reached 914,860 at the end of February, with 66 of the nation's 200 largest metros now exceeding pre-pandemic levels — up from zero in 2022. National listings are up 7.9% YoY. HousingWire notes 2026 looks to be the first year of actual growth in existing home sales in years.",
-      time: "2d ago",
-      readTime: "2 min",
-      source: "HousingWire · Fast Company",
-    },
-    {
-      tag: "COMMERCIAL",
-      tagColor: "#0A84FF",
-      headline: "Commercial Real Estate Shows Recovery, Led by Data Centers",
-      summary: "Private U.S. CRE values bottomed in Q4 2024, with office the last sector to trough in Q2 2025. Data centers report 100% pre-leasing in nine major global markets. J.P. Morgan calls the 2026 CRE outlook \"strong from both a capital and fundamental standpoint.\"",
-      time: "1d ago",
-      readTime: "3 min",
-      source: "J.P. Morgan · Morningstar · Markets Group",
-    },
-    {
-      tag: "BUILDERS",
-      tagColor: "#BF5AF2",
-      headline: "Homebuilder Confidence Remains Stuck Below Growth Threshold",
-      summary: "The NAHB Housing Market Index edged to 38 in March, well below the 50-point expansion threshold. Builders continue pivoting to smaller floor plans for affordability. NAR predicts existing home sales will rise 14% and prices will increase 4% in 2026.",
-      time: "2d ago",
-      readTime: "2 min",
-      source: "NAHB · NAR · Rate.com",
-    },
-  ],
-  politics: [
-    {
-      tag: "WAR",
-      tagColor: "#E8453C",
-      headline: "Iran War Enters Day 28 — Hormuz Blocked, Diplomacy Stalls",
-      summary: "The U.S.-Israel campaign has struck over 10,000 targets and destroyed two-thirds of Iran's missile production facilities per CENTCOM. At least 13 U.S. service members, 1,750+ Iranians, and 1,116 Lebanese have been killed. Iran's Foreign Minister rejected negotiations. A UK-led 22-nation coalition is working to secure the Strait.",
-      time: "1h ago",
-      readTime: "3 min",
-      source: "CNN · Al Jazeera · Times of Israel",
-    },
-    {
-      tag: "SHUTDOWN",
-      tagColor: "#FF453A",
-      headline: "DHS Shutdown Hits Day 42 With No Resolution in Sight",
-      summary: "The longest DHS shutdown in history deepened as Speaker Johnson rejected a Senate funding bill. TSA callout rates hit a record 11.83%, with some airports above 40%; 510 TSA officers have quit since Feb 14. Trump signed emergency pay for ~61,000 TSA workers. Congress left for a two-week recess.",
-      time: "3h ago",
-      readTime: "3 min",
-      source: "NBC News · CBS News · Federal News Network",
-    },
-    {
-      tag: "TRADE",
-      tagColor: "#FF9F0A",
-      headline: "Post-IEEPA Tariff Regime: Highest Effective Rates Since 1943",
-      summary: "After the Supreme Court struck down IEEPA-based tariffs, the administration imposed a 10% global import surcharge via Section 122. The average effective tariff rate stands at 10.5% — the highest since 1943. China faces 33.9%, steel/aluminum 41.1%. Twenty-four states have filed suit.",
-      time: "6h ago",
-      readTime: "3 min",
-      source: "Yale Budget Lab · Tax Foundation · White House",
-    },
-    {
-      tag: "DIPLOMACY",
-      tagColor: "#0A84FF",
-      headline: "Russia-Ukraine Peace Talks Paused as Iran War Diverts U.S. Attention",
-      summary: "Trilateral negotiations remain suspended since mid-February Geneva sessions. Notably, Ukraine recaptured ~400 km² in late February — the first such reversal since 2024. A coalition of 35 nations agreed on post-ceasefire security guarantees including UK-French military hubs in Ukraine.",
-      time: "1d ago",
-      readTime: "2 min",
-      source: "Al Jazeera · Wikipedia · ORF Online",
-    },
-    {
-      tag: "PROTEST",
-      tagColor: "#BF5AF2",
-      headline: "\"No Kings\" Protests Expected to Draw Millions Nationwide Saturday",
-      summary: "The third wave of protests, organized by ~300 groups including the ACLU, is scheduled for March 28 with the flagship rally in Minneapolis-St. Paul. Grievances include the Iran war, the DHS shutdown, and executive overreach. The prior round drew an estimated 5 million participants.",
-      time: "12h ago",
-      readTime: "2 min",
-      source: "Ms. Magazine · Wikipedia",
-    },
-  ],
-  startups: [
-    {
-      tag: "TREND",
-      tagColor: "#0A84FF",
-      headline: "AI Captures 41% of All Venture Dollars as Mega-Rounds Dominate",
-      summary: "AI startups captured 41% of the $128B in venture funding on Carta in 2025 — a record share. February 2026 was the largest single month ever at $189B globally, though 83% went to just three companies: OpenAI ($110B), Anthropic ($30B), and Waymo ($16B). March has cooled to ~$13B.",
-      time: "1d ago",
-      readTime: "3 min",
-      source: "TechCrunch · AI Funding Tracker",
-    },
-    {
-      tag: "FUNDING",
-      tagColor: "#30D158",
-      headline: "Shield AI Raises $1.5B at $12.7B Valuation — Defense Tech Surges",
-      summary: "Shield AI, maker of the Hivemind autonomy software for military drones, closed its Series G, more than doubling its valuation from $5.6B. The round reflects projected 80%+ revenue growth to over $540M in 2026 and signals defense AI's emergence as a top-tier venture category.",
-      time: "8h ago",
-      readTime: "2 min",
-      source: "Tech Startups · Bloomberg",
-    },
-    {
-      tag: "IPO WATCH",
-      tagColor: "#BF5AF2",
-      headline: "A $3.6T IPO Pipeline Builds for H2 2026",
-      summary: "Databricks ($134B valuation, $5.4B ARR, 65% growth) secured $1.8B in debt ahead of a potential H2 listing. OpenAI targets Q4 at ~$1T valuation. SpaceX may go in June at $1.5T. Other anticipated IPOs include Cerebras and Stripe. PitchBook warns the market has rewarded story over substance.",
-      time: "1d ago",
-      readTime: "3 min",
-      source: "Techbuzz · U.S. News · Morningstar",
-    },
-    {
-      tag: "FUNDING",
-      tagColor: "#FF9F0A",
-      headline: "Late March Highlights: AI Infrastructure & Healthcare Rounds",
-      summary: "Notable rounds include Granola ($125M Series C), Dash0 ($110M Series B), Cloaked ($375M Series B), and Normal ($50M Series B for AI chip design). NVIDIA has invested ~$800M in Reflection AI's open-source LLM push, with JPMorgan reportedly considering participation.",
-      time: "1d ago",
-      readTime: "2 min",
-      source: "Crunchbase · Startups Gallery",
-    },
-    {
-      tag: "GLOBAL",
-      tagColor: "#64D2FF",
-      headline: "European VC Hits 2026 High as U.S. March Funding Cools",
-      summary: "While U.S. startup funding slowed sharply in March, European VC reached its highest point of the year. Fintech remains strong globally, with particular momentum in stablecoins, agentic payments, and AI-native financial tools. Crypto startup funding dipped 13% YoY to $883M in February.",
-      time: "2d ago",
-      readTime: "2 min",
-      source: "Crunchbase News · Mean CEO",
-    },
-  ],
-};
+const faqs = [
+  { q: "What is The Morning Brief?", a: "The Morning Brief is a daily intelligence platform that synthesizes the most important news across 7 major industries into concise audio briefings and PDF summaries. Think of it as your personalized newsroom — delivered every morning before 7 AM." },
+  { q: "How long are the audio briefings?", a: "Each industry briefing is 5–10 minutes. The full cross-industry 'Everything Brief' runs about 20–25 minutes — perfect for a morning commute." },
+  { q: "Can I customize what I receive?", a: "Absolutely. Choose specific industries, subsections, or opt into the full package. You control the format too — audio, PDF, or both." },
+  { q: "Is The Morning Brief free?", a: "We offer a free tier with access to 2 industry briefings per day. Premium subscribers get unlimited access, the Everything Brief, and early delivery." },
+  { q: "How is this different from other newsletters?", a: "We don't just aggregate headlines. Our briefings are synthesized narratives with context, connecting dots across industries. Plus, audio-first delivery means you can consume it hands-free." },
+  { q: "What time are briefings delivered?", a: "Premium briefings land by 6 AM ET. Free tier briefings are available by 8 AM ET." },
+];
 
-const MACRO_BANNER = {
-  label: "MACRO SIGNAL",
-  text: "The Iran-Hormuz crisis, AI's accelerating restructuring of the economy, and a legal/policy environment in rapid flux are the three threads connecting every sector this morning.",
-};
+const howToSteps = [
+  { icon: Eye, title: "Browse Industries", desc: "Scroll through 7 industry sections, each with curated top stories and subsections." },
+  { icon: Headphones, title: "Listen to Briefings", desc: "Hit play on any section to hear a concise audio summary of the day's key developments." },
+  { icon: Layers, title: "Explore Subsections", desc: "Drill into specific topics within each industry for deeper coverage." },
+  { icon: Bell, title: "Subscribe & Customize", desc: "Choose your industries, pick your format (audio, PDF, or both), and get daily delivery." },
+  { icon: Download, title: "Download PDFs", desc: "Every briefing comes with a downloadable PDF for offline reading and archiving." },
+  { icon: Star, title: "Go Premium", desc: "Unlock the Everything Brief — a single audio + PDF covering all 7 industries." },
+];
 
-export default function MorningBriefing() {
-  const [activeTab, setActiveTab] = useState("tech");
-  const [animating, setAnimating] = useState(false);
-  const [visible, setVisible] = useState(true);
-  const [scrolled, setScrolled] = useState(false);
-  const containerRef = useRef(null);
+/* ───────────────────── AUDIO PLAYER ───────────────────── */
+function AudioPlayer({ industry }) {
+  const [playing, setPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (containerRef.current) {
-        setScrolled(containerRef.current.scrollTop > 60);
-      }
-    };
-    const el = containerRef.current;
-    if (el) el.addEventListener("scroll", handleScroll);
-    return () => el && el.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const switchTab = (id) => {
-    if (id === activeTab) return;
-    setVisible(false);
-    setAnimating(true);
-    setTimeout(() => {
-      setActiveTab(id);
-      setVisible(true);
-      setAnimating(false);
-      if (containerRef.current) containerRef.current.scrollTop = 0;
-    }, 250);
-  };
-
-  const items = BRIEFINGS[activeTab] || [];
-  const now = new Date();
-  const dateStr = now.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
+    let interval;
+    if (playing) {
+      interval = setInterval(() => {
+        setProgress((p) => {
+          if (p >= 100) { setPlaying(false); return 0; }
+          return p + 0.5;
+        });
+      }, 100);
+    }
+    return () => clearInterval(interval);
+  }, [playing]);
 
   return (
     <div
-      ref={containerRef}
-      style={{
-        width: "100%",
-        height: "100vh",
-        overflow: "auto",
-        background: "linear-gradient(160deg, #F7F5F0 0%, #F2EFE8 100%)",
-        fontFamily:
-          "'Newsreader', 'Georgia', 'Times New Roman', serif",
-        color: "#1A1A1A",
-        position: "relative",
-      }}
+      className="audio-player"
+      style={{ "--accent": industry.accent, "--accent-light": industry.accentLight }}
     >
-      <link
-        href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap"
-        rel="stylesheet"
-      />
-
-      <style>{`
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(16px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes slideIn {
-          from { opacity: 0; transform: translateX(-8px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-        .card-item {
-          animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-        }
-        .card-item:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 32px rgba(0,0,0,0.08);
-        }
-        .tab-btn {
-          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-          cursor: pointer;
-          border: none;
-          background: none;
-          font-family: 'DM Sans', sans-serif;
-          white-space: nowrap;
-        }
-        .tab-btn:hover {
-          background: rgba(0,0,0,0.04) !important;
-        }
-        .play-btn {
-          transition: all 0.2s ease;
-          cursor: pointer;
-        }
-        .play-btn:hover {
-          transform: scale(1.1);
-          background: #1A1A1A !important;
-          color: #fff !important;
-        }
-        .content-area {
-          transition: opacity 0.25s ease, transform 0.25s ease;
-        }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #D4D4CC; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #B0B0A8; }
-      `}</style>
-
-      {/* ── HEADER ── */}
-      <header
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 100,
-          background: scrolled
-            ? "rgba(247,245,240,0.88)"
-            : "rgba(247,245,240,1)",
-          backdropFilter: scrolled ? "blur(20px) saturate(180%)" : "none",
-          WebkitBackdropFilter: scrolled
-            ? "blur(20px) saturate(180%)"
-            : "none",
-          borderBottom: scrolled
-            ? "1px solid rgba(0,0,0,0.06)"
-            : "1px solid transparent",
-          transition: "all 0.3s ease",
-        }}
+      <button
+        className="play-btn"
+        onClick={() => setPlaying(!playing)}
+        aria-label={playing ? "Pause" : "Play"}
       >
-        {/* Top bar */}
-        <div
-          style={{
-            maxWidth: 1080,
-            margin: "0 auto",
-            padding: scrolled ? "12px 24px" : "28px 24px 20px",
-            transition: "padding 0.3s ease",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginBottom: scrolled ? 0 : 4,
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
-              <h1
-                style={{
-                  fontFamily: "'Newsreader', serif",
-                  fontSize: scrolled ? 22 : 32,
-                  fontWeight: 700,
-                  letterSpacing: "-0.02em",
-                  color: "#1A1A1A",
-                  transition: "font-size 0.3s ease",
-                  lineHeight: 1.1,
-                }}
-              >
-                The Morning Brief
-              </h1>
-              <span
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: 10,
-                  fontWeight: 600,
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                  color: "#fff",
-                  background: "#E8453C",
-                  padding: "3px 8px",
-                  borderRadius: 4,
-                  opacity: scrolled ? 0 : 1,
-                  transition: "opacity 0.3s ease",
-                }}
-              >
-                LIVE
-              </span>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 16,
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: 12,
-                  color: "#888",
-                  fontWeight: 500,
-                }}
-              >
-                <span style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: "50%",
-                  background: "#30D158",
-                  display: "inline-block",
-                  animation: "pulse 2s infinite",
-                }} />
-                Updated {dateStr}
-              </div>
-              <button
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: "#fff",
-                  background: "linear-gradient(135deg, #0A84FF 0%, #BF5AF2 100%)",
-                  border: "none",
-                  borderRadius: 8,
-                  padding: "8px 16px",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  transition: "all 0.2s ease",
-                  boxShadow: "0 2px 8px rgba(10,132,255,0.35)",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
-                onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
-              >
-                <span style={{ fontSize: 14 }}>▶</span> Listen to Briefing
-              </button>
-            </div>
-          </div>
-
-          {!scrolled && (
-            <p
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: 13,
-                color: "#999",
-                fontWeight: 400,
-                marginTop: 2,
-                animation: "fadeIn 0.6s ease both",
-              }}
-            >
-              Your personalized industry intelligence · 7 sectors · 5 min read
-            </p>
-          )}
+        {playing ? <Pause size={18} /> : <Play size={18} style={{ marginLeft: 2 }} />}
+      </button>
+      <div className="audio-info">
+        <span className="audio-label">
+          <AudioLines size={14} /> Today's {industry.name} Brief
+        </span>
+        <div className="progress-track">
+          <div className="progress-fill" style={{ width: `${progress}%`, background: industry.accent }} />
         </div>
-
-        {/* Tabs */}
-        <div
-          style={{
-            maxWidth: 1080,
-            margin: "0 auto",
-            padding: "0 24px",
-          }}
-        >
-          <nav
-            style={{
-              display: "flex",
-              gap: 4,
-              overflowX: "auto",
-              paddingBottom: 0,
-              msOverflowStyle: "none",
-              scrollbarWidth: "none",
-            }}
-          >
-            {INDUSTRIES.map((ind) => {
-              const isActive = ind.id === activeTab;
-              return (
-                <button
-                  key={ind.id}
-                  className="tab-btn"
-                  onClick={() => switchTab(ind.id)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    padding: "10px 16px",
-                    fontSize: 13,
-                    fontWeight: isActive ? 600 : 500,
-                    color: isActive ? "#0A84FF" : "#888",
-                    borderBottom: isActive
-                      ? "2px solid #0A84FF"
-                      : "2px solid transparent",
-                    borderRadius: "8px 8px 0 0",
-                    letterSpacing: "-0.01em",
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: 10,
-                      opacity: isActive ? 1 : 0.5,
-                      transition: "opacity 0.25s",
-                    }}
-                  >
-                    {ind.icon}
-                  </span>
-                  {ind.label}
-                </button>
-              );
-            })}
-          </nav>
+        <div className="audio-meta">
+          <span>{Math.floor((progress / 100) * 8)}:{String(Math.floor(((progress / 100) * 480) % 60)).padStart(2, "0")}</span>
+          <span>8:00</span>
         </div>
-      </header>
+      </div>
+      <Volume2 size={18} className="volume-icon" style={{ color: industry.accent }} />
+    </div>
+  );
+}
 
-      {/* ── MACRO BANNER ── */}
-      <div
-        style={{
-          maxWidth: 1080,
-          margin: "0 auto",
-          padding: "20px 24px 0",
-        }}
-      >
-        <div
-          style={{
-            background:
-              "linear-gradient(135deg, #1A1A1A 0%, #2C2C2E 100%)",
-            borderRadius: 14,
-            padding: "16px 20px",
-            display: "flex",
-            alignItems: "flex-start",
-            gap: 14,
-            animation: "fadeIn 0.6s ease both",
-          }}
-        >
-          <span
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: 9,
-              fontWeight: 700,
-              letterSpacing: "0.1em",
-              color: "#FF9F0A",
-              background: "rgba(255,159,10,0.15)",
-              padding: "4px 8px",
-              borderRadius: 4,
-              flexShrink: 0,
-              marginTop: 1,
-            }}
-          >
-            {MACRO_BANNER.label}
-          </span>
-          <p
-            style={{
-              fontFamily: "'Newsreader', serif",
-              fontSize: 14.5,
-              lineHeight: 1.55,
-              color: "rgba(255,255,255,0.88)",
-              fontWeight: 400,
-            }}
-          >
-            {MACRO_BANNER.text}
-          </p>
+/* ───────────────────── INDUSTRY SECTION ───────────────────── */
+function IndustrySection({ industry, index }) {
+  const [expanded, setExpanded] = useState(false);
+  const Icon = industry.icon;
+  const isEven = index % 2 === 0;
+
+  return (
+    <section className="industry-section" id={industry.id}>
+      <div className="industry-header">
+        <div className="industry-icon-wrap" style={{ background: industry.accentLight }}>
+          <Icon size={28} style={{ color: industry.accent }} strokeWidth={1.8} />
+        </div>
+        <div>
+          <h2 className="industry-title">
+            {industry.name}
+          </h2>
+          <p className="industry-tagline">{industry.tagline}</p>
         </div>
       </div>
 
-      {/* ── CONTENT AREA ── */}
-      <main
-        className="content-area"
-        style={{
-          maxWidth: 1080,
-          margin: "0 auto",
-          padding: "20px 24px 60px",
-          opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0)" : "translateY(8px)",
-        }}
-      >
-        {/* Section header */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "baseline",
-            justifyContent: "space-between",
-            marginBottom: 16,
-            paddingTop: 4,
-          }}
-        >
-          <h2
-            style={{
-              fontFamily: "'Newsreader', serif",
-              fontSize: 22,
-              fontWeight: 700,
-              color: "#1A1A1A",
-              letterSpacing: "-0.01em",
-              borderLeft: `3px solid ${BRIEFINGS[activeTab]?.[0]?.tagColor || "#0A84FF"}`,
-              paddingLeft: 12,
-            }}
-          >
-            {INDUSTRIES.find((i) => i.id === activeTab)?.icon}{" "}
-            {INDUSTRIES.find((i) => i.id === activeTab)?.label}
-          </h2>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button
+      <AudioPlayer industry={industry} />
+
+      {/* Subsections */}
+      <div className="subsections">
+        {industry.subsections.map((sub) => (
+          <span key={sub} className="subsection-chip" style={{ borderColor: industry.accent, color: industry.accent, background: industry.accentLight }}>
+            {sub}
+          </span>
+        ))}
+      </div>
+
+      {/* Stories */}
+      <div className="stories-grid">
+        {industry.stories.map((story, i) => (
+          <div key={i} className="story-card" style={{ "--card-accent": industry.accent }}>
+            <div className="story-tag" style={{ background: industry.accentLight, color: industry.accent }}>
+              {story.tag}
+            </div>
+            <h3 className="story-title">{story.title}</h3>
+            <div className="story-footer">
+              <span className="story-time"><Clock size={13} /> {story.time}</span>
+              <button className="story-read-more" style={{ color: industry.accent }}>
+                Read more <ArrowRight size={14} />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ───────────────────── FAQ ITEM ───────────────────── */
+function FaqItem({ faq }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className={`faq-item ${open ? "open" : ""}`} onClick={() => setOpen(!open)}>
+      <div className="faq-q">
+        <span>{faq.q}</span>
+        <ChevronDown size={20} className={`faq-chevron ${open ? "rotated" : ""}`} />
+      </div>
+      {open && <p className="faq-a">{faq.a}</p>}
+    </div>
+  );
+}
+
+/* ───────────────────── SUBSCRIBE SECTION ───────────────────── */
+function SubscribeSection() {
+  const [selected, setSelected] = useState([]);
+  const [format, setFormat] = useState("both");
+  const [email, setEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
+  const [everything, setEverything] = useState(false);
+
+  const toggleIndustry = (id) => {
+    if (everything) return;
+    setSelected((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const toggleEverything = () => {
+    setEverything(!everything);
+    if (!everything) {
+      setSelected(industries.map((i) => i.id));
+    } else {
+      setSelected([]);
+    }
+  };
+
+  return (
+    <section className="subscribe-section" id="subscribe">
+      <div className="section-badge"><Bell size={14} /> Personalize Your Brief</div>
+      <h2 className="section-heading">Subscribe to What Matters</h2>
+      <p className="section-desc">
+        Choose the industries you care about, pick your delivery format, and wake up every morning to a personalized briefing.
+      </p>
+
+      {/* Everything toggle */}
+      <div className="everything-toggle" onClick={toggleEverything}>
+        <div className={`toggle-track ${everything ? "active" : ""}`}>
+          <div className="toggle-thumb" />
+        </div>
+        <div>
+          <span className="everything-label">
+            <Sparkles size={16} /> The Everything Brief
+          </span>
+          <span className="everything-desc">Get all 7 industries in one comprehensive audio + PDF</span>
+        </div>
+      </div>
+
+      {/* Industry selector */}
+      <div className="subscribe-grid">
+        {industries.map((ind) => {
+          const Icon = ind.icon;
+          const isSelected = selected.includes(ind.id);
+          return (
+            <div
+              key={ind.id}
+              className={`subscribe-card ${isSelected ? "selected" : ""}`}
               style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: 11,
-                fontWeight: 500,
-                color: "#888",
-                background: "rgba(0,0,0,0.03)",
-                border: "1px solid rgba(0,0,0,0.06)",
-                borderRadius: 6,
-                padding: "6px 12px",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 4,
+                "--sel-accent": ind.accent,
+                "--sel-light": ind.accentLight,
+                borderColor: isSelected ? ind.accent : "transparent",
               }}
+              onClick={() => toggleIndustry(ind.id)}
             >
-              <span style={{ fontSize: 13 }}>📄</span> Download PDF
+              <div className="subscribe-card-check">
+                {isSelected && <Check size={14} />}
+              </div>
+              <Icon size={24} style={{ color: isSelected ? ind.accent : "var(--text-muted)" }} />
+              <span className="subscribe-card-name">{ind.name}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Format selector */}
+      <div className="format-selector">
+        <h3 className="format-title">Delivery Format</h3>
+        <div className="format-options">
+          {[
+            { id: "audio", label: "Audio Only", icon: Headphones },
+            { id: "pdf", label: "PDF Only", icon: FileText },
+            { id: "both", label: "Audio + PDF", icon: Sparkles },
+          ].map((f) => (
+            <button
+              key={f.id}
+              className={`format-btn ${format === f.id ? "active" : ""}`}
+              onClick={() => setFormat(f.id)}
+            >
+              <f.icon size={18} />
+              {f.label}
             </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Email */}
+      {!subscribed ? (
+        <div className="email-row">
+          <div className="email-input-wrap">
+            <Mail size={18} />
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="email-input"
+            />
+          </div>
+          <button
+            className="subscribe-btn"
+            onClick={() => { if (email) setSubscribed(true); }}
+          >
+            Subscribe <ArrowRight size={16} />
+          </button>
+        </div>
+      ) : (
+        <div className="subscribed-msg">
+          <Check size={20} />
+          <span>You're in! Check your inbox for confirmation.</span>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* ───────────────────── MAIN APP ───────────────────── */
+export default function MorningBrief() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", handler);
+    return () => window.removeEventListener("scroll", handler);
+  }, []);
+
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap');
+
+        :root {
+          --bg-primary: #0a0e17;
+          --bg-secondary: #111827;
+          --bg-card: #161e2e;
+          --bg-card-hover: #1c2740;
+          --border: rgba(255,255,255,0.06);
+          --border-hover: rgba(255,255,255,0.12);
+          --text-primary: #f1f5f9;
+          --text-secondary: #94a3b8;
+          --text-muted: #64748b;
+          --gold: #d4a853;
+          --gold-light: rgba(212,168,83,0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        .app {
+          font-family: 'DM Sans', sans-serif;
+          background: var(--bg-primary);
+          color: var(--text-primary);
+          min-height: 100vh;
+          overflow-x: hidden;
+        }
+
+        /* ── BG EFFECTS ── */
+        .bg-glow {
+          position: fixed;
+          top: -300px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 900px;
+          height: 900px;
+          background: radial-gradient(circle, rgba(212,168,83,0.06) 0%, transparent 70%);
+          pointer-events: none;
+          z-index: 0;
+        }
+        .bg-grid {
+          position: fixed;
+          inset: 0;
+          background-image:
+            linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+          background-size: 60px 60px;
+          pointer-events: none;
+          z-index: 0;
+        }
+
+        /* ── NAVBAR ── */
+        .navbar {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 100;
+          padding: 16px 40px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          transition: all 0.3s ease;
+          backdrop-filter: blur(20px);
+          background: rgba(10,14,23,0.7);
+          border-bottom: 1px solid transparent;
+        }
+        .navbar.scrolled {
+          padding: 12px 40px;
+          background: rgba(10,14,23,0.92);
+          border-bottom: 1px solid var(--border);
+        }
+        .logo {
+          font-family: 'Playfair Display', serif;
+          font-size: 1.5rem;
+          font-weight: 700;
+          letter-spacing: -0.02em;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          color: var(--text-primary);
+        }
+        .logo-dot {
+          width: 10px;
+          height: 10px;
+          background: var(--gold);
+          border-radius: 50%;
+          display: inline-block;
+          box-shadow: 0 0 12px rgba(212,168,83,0.5);
+        }
+        .nav-links {
+          display: flex;
+          gap: 32px;
+          align-items: center;
+          list-style: none;
+        }
+        .nav-links a {
+          text-decoration: none;
+          color: var(--text-secondary);
+          font-size: 0.88rem;
+          font-weight: 500;
+          transition: color 0.2s;
+          letter-spacing: 0.01em;
+        }
+        .nav-links a:hover { color: var(--gold); }
+        .nav-cta {
+          background: linear-gradient(135deg, var(--gold), #c4923a);
+          color: #0a0e17 !important;
+          padding: 10px 22px;
+          border-radius: 100px;
+          font-weight: 600 !important;
+          font-size: 0.85rem !important;
+          letter-spacing: 0.02em;
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .nav-cta:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 20px rgba(212,168,83,0.3);
+        }
+        .menu-toggle {
+          display: none;
+          background: none;
+          border: none;
+          color: var(--text-primary);
+          cursor: pointer;
+        }
+
+        /* ── HERO ── */
+        .hero {
+          position: relative;
+          z-index: 1;
+          padding: 180px 40px 100px;
+          text-align: center;
+          max-width: 900px;
+          margin: 0 auto;
+        }
+        .hero-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: var(--gold-light);
+          border: 1px solid rgba(212,168,83,0.2);
+          color: var(--gold);
+          padding: 8px 18px;
+          border-radius: 100px;
+          font-size: 0.82rem;
+          font-weight: 600;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+          margin-bottom: 28px;
+          animation: fadeInDown 0.6s ease;
+        }
+        .hero h1 {
+          font-family: 'Playfair Display', serif;
+          font-size: clamp(2.8rem, 6vw, 4.5rem);
+          font-weight: 800;
+          line-height: 1.08;
+          letter-spacing: -0.03em;
+          margin-bottom: 24px;
+          animation: fadeInUp 0.7s ease;
+        }
+        .hero h1 .gold { color: var(--gold); }
+        .hero p {
+          font-size: 1.15rem;
+          color: var(--text-secondary);
+          line-height: 1.7;
+          max-width: 640px;
+          margin: 0 auto 40px;
+          animation: fadeInUp 0.8s ease;
+        }
+        .hero-actions {
+          display: flex;
+          gap: 16px;
+          justify-content: center;
+          flex-wrap: wrap;
+          animation: fadeInUp 0.9s ease;
+        }
+        .hero-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 14px 32px;
+          border-radius: 100px;
+          font-size: 0.95rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+          border: none;
+          text-decoration: none;
+        }
+        .hero-btn.primary {
+          background: linear-gradient(135deg, var(--gold), #c4923a);
+          color: #0a0e17;
+        }
+        .hero-btn.primary:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 30px rgba(212,168,83,0.35);
+        }
+        .hero-btn.secondary {
+          background: var(--bg-card);
+          color: var(--text-primary);
+          border: 1px solid var(--border-hover);
+        }
+        .hero-btn.secondary:hover {
+          background: var(--bg-card-hover);
+          border-color: var(--gold);
+        }
+
+        /* ── MACRO BANNER ── */
+        .macro-banner {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          align-items: center;
+          gap: 24px;
+          padding: 20px 40px;
+          background: var(--bg-secondary);
+          border-top: 1px solid var(--border);
+          border-bottom: 1px solid var(--border);
+          overflow: hidden;
+          white-space: nowrap;
+        }
+        .macro-banner-inner {
+          display: flex;
+          gap: 40px;
+          animation: scroll 30s linear infinite;
+        }
+        .macro-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 0.85rem;
+          color: var(--text-secondary);
+          flex-shrink: 0;
+        }
+        .macro-item .up { color: #10b981; }
+        .macro-item .down { color: #ef4444; }
+
+        @keyframes scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+
+        /* ── SECTION COMMON ── */
+        .content-wrapper {
+          position: relative;
+          z-index: 1;
+          max-width: 1100px;
+          margin: 0 auto;
+          padding: 0 40px;
+        }
+        .section-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: var(--gold-light);
+          border: 1px solid rgba(212,168,83,0.2);
+          color: var(--gold);
+          padding: 6px 16px;
+          border-radius: 100px;
+          font-size: 0.78rem;
+          font-weight: 600;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+          margin-bottom: 16px;
+        }
+        .section-heading {
+          font-family: 'Playfair Display', serif;
+          font-size: 2.4rem;
+          font-weight: 700;
+          letter-spacing: -0.02em;
+          margin-bottom: 12px;
+        }
+        .section-desc {
+          color: var(--text-secondary);
+          font-size: 1.05rem;
+          line-height: 1.7;
+          max-width: 600px;
+          margin-bottom: 40px;
+        }
+
+        /* ── INDUSTRY NAV TABS ── */
+        .industry-nav {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          gap: 8px;
+          padding: 40px 40px 0;
+          max-width: 1100px;
+          margin: 0 auto;
+          flex-wrap: wrap;
+        }
+        .industry-nav-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 20px;
+          border-radius: 100px;
+          border: 1px solid var(--border);
+          background: var(--bg-card);
+          color: var(--text-secondary);
+          font-size: 0.85rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+          text-decoration: none;
+        }
+        .industry-nav-btn:hover {
+          border-color: var(--border-hover);
+          background: var(--bg-card-hover);
+          color: var(--text-primary);
+        }
+
+        /* ── INDUSTRY SECTION ── */
+        .industry-section {
+          position: relative;
+          z-index: 1;
+          max-width: 1100px;
+          margin: 0 auto;
+          padding: 60px 40px;
+          border-bottom: 1px solid var(--border);
+        }
+        .industry-header {
+          display: flex;
+          align-items: center;
+          gap: 18px;
+          margin-bottom: 24px;
+        }
+        .industry-icon-wrap {
+          width: 56px;
+          height: 56px;
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        .industry-title {
+          font-family: 'Playfair Display', serif;
+          font-size: 1.8rem;
+          font-weight: 700;
+          letter-spacing: -0.01em;
+        }
+        .industry-tagline {
+          color: var(--text-muted);
+          font-size: 0.9rem;
+          margin-top: 2px;
+        }
+
+        /* ── AUDIO PLAYER ── */
+        .audio-player {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: 14px;
+          padding: 14px 20px;
+          margin-bottom: 24px;
+          transition: border-color 0.2s;
+        }
+        .audio-player:hover { border-color: var(--border-hover); }
+        .play-btn {
+          width: 42px;
+          height: 42px;
+          border-radius: 50%;
+          background: var(--accent);
+          border: none;
+          color: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          flex-shrink: 0;
+          transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .play-btn:hover {
+          transform: scale(1.08);
+          box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        }
+        .audio-info { flex: 1; min-width: 0; }
+        .audio-label {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 0.82rem;
+          font-weight: 600;
+          color: var(--text-primary);
+          margin-bottom: 8px;
+        }
+        .progress-track {
+          width: 100%;
+          height: 4px;
+          background: rgba(255,255,255,0.08);
+          border-radius: 100px;
+          overflow: hidden;
+        }
+        .progress-fill {
+          height: 100%;
+          border-radius: 100px;
+          transition: width 0.1s linear;
+        }
+        .audio-meta {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.72rem;
+          color: var(--text-muted);
+          margin-top: 4px;
+        }
+        .volume-icon { flex-shrink: 0; opacity: 0.6; }
+
+        /* ── SUBSECTIONS ── */
+        .subsections {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+          margin-bottom: 24px;
+        }
+        .subsection-chip {
+          padding: 6px 14px;
+          border-radius: 100px;
+          font-size: 0.78rem;
+          font-weight: 600;
+          border: 1px solid;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .subsection-chip:hover {
+          filter: brightness(1.2);
+          transform: translateY(-1px);
+        }
+
+        /* ── STORY CARDS ── */
+        .stories-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 16px;
+        }
+        .story-card {
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: 14px;
+          padding: 22px;
+          cursor: pointer;
+          transition: all 0.25s;
+        }
+        .story-card:hover {
+          border-color: var(--card-accent);
+          transform: translateY(-3px);
+          box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .story-tag {
+          display: inline-block;
+          padding: 4px 10px;
+          border-radius: 6px;
+          font-size: 0.72rem;
+          font-weight: 700;
+          letter-spacing: 0.03em;
+          text-transform: uppercase;
+          margin-bottom: 12px;
+        }
+        .story-title {
+          font-size: 1rem;
+          font-weight: 600;
+          line-height: 1.45;
+          margin-bottom: 16px;
+          color: var(--text-primary);
+        }
+        .story-footer {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .story-time {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          font-size: 0.78rem;
+          color: var(--text-muted);
+        }
+        .story-read-more {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          background: none;
+          border: none;
+          font-size: 0.82rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: gap 0.2s;
+        }
+        .story-read-more:hover { gap: 8px; }
+
+        /* ── HOW TO SECTION ── */
+        .howto-section {
+          position: relative;
+          z-index: 1;
+          max-width: 1100px;
+          margin: 0 auto;
+          padding: 80px 40px;
+        }
+        .howto-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 20px;
+        }
+        .howto-card {
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: 16px;
+          padding: 28px;
+          transition: all 0.25s;
+        }
+        .howto-card:hover {
+          border-color: var(--gold);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+        }
+        .howto-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: 12px;
+          background: var(--gold-light);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 16px;
+          color: var(--gold);
+        }
+        .howto-card h3 {
+          font-family: 'Playfair Display', serif;
+          font-size: 1.1rem;
+          font-weight: 600;
+          margin-bottom: 8px;
+        }
+        .howto-card p {
+          font-size: 0.88rem;
+          color: var(--text-secondary);
+          line-height: 1.6;
+        }
+
+        /* ── FAQ SECTION ── */
+        .faq-section {
+          position: relative;
+          z-index: 1;
+          max-width: 800px;
+          margin: 0 auto;
+          padding: 80px 40px;
+        }
+        .faq-item {
+          border: 1px solid var(--border);
+          border-radius: 14px;
+          margin-bottom: 12px;
+          overflow: hidden;
+          cursor: pointer;
+          background: var(--bg-card);
+          transition: border-color 0.2s;
+        }
+        .faq-item:hover, .faq-item.open { border-color: var(--gold); }
+        .faq-q {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 20px 24px;
+          font-weight: 600;
+          font-size: 0.95rem;
+        }
+        .faq-chevron { transition: transform 0.3s; color: var(--text-muted); }
+        .faq-chevron.rotated { transform: rotate(180deg); color: var(--gold); }
+        .faq-a {
+          padding: 0 24px 20px;
+          color: var(--text-secondary);
+          font-size: 0.9rem;
+          line-height: 1.7;
+        }
+
+        /* ── SUBSCRIBE SECTION ── */
+        .subscribe-section {
+          position: relative;
+          z-index: 1;
+          max-width: 900px;
+          margin: 0 auto;
+          padding: 80px 40px;
+          text-align: center;
+        }
+        .everything-toggle {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: 14px;
+          padding: 18px 24px;
+          margin-bottom: 28px;
+          cursor: pointer;
+          text-align: left;
+          transition: border-color 0.2s;
+        }
+        .everything-toggle:hover { border-color: var(--gold); }
+        .toggle-track {
+          width: 48px;
+          height: 26px;
+          border-radius: 100px;
+          background: rgba(255,255,255,0.1);
+          position: relative;
+          flex-shrink: 0;
+          transition: background 0.3s;
+        }
+        .toggle-track.active { background: var(--gold); }
+        .toggle-thumb {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: white;
+          position: absolute;
+          top: 3px;
+          left: 3px;
+          transition: transform 0.3s;
+        }
+        .toggle-track.active .toggle-thumb { transform: translateX(22px); }
+        .everything-label {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-weight: 700;
+          font-size: 1rem;
+          color: var(--gold);
+        }
+        .everything-desc {
+          display: block;
+          font-size: 0.82rem;
+          color: var(--text-muted);
+          margin-top: 2px;
+        }
+        .subscribe-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+          gap: 12px;
+          margin-bottom: 32px;
+        }
+        .subscribe-card {
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+          padding: 22px 14px;
+          border-radius: 14px;
+          background: var(--bg-card);
+          border: 2px solid transparent;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .subscribe-card:hover { background: var(--bg-card-hover); }
+        .subscribe-card.selected { background: var(--sel-light); border-color: var(--sel-accent); }
+        .subscribe-card-check {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: var(--sel-accent, rgba(255,255,255,0.1));
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-size: 0.7rem;
+          opacity: 0;
+          transition: opacity 0.2s;
+        }
+        .subscribe-card.selected .subscribe-card-check { opacity: 1; }
+        .subscribe-card-name {
+          font-size: 0.78rem;
+          font-weight: 600;
+          text-align: center;
+          color: var(--text-secondary);
+        }
+        .subscribe-card.selected .subscribe-card-name { color: var(--text-primary); }
+        .format-selector { margin-bottom: 32px; }
+        .format-title {
+          font-family: 'Playfair Display', serif;
+          font-size: 1.1rem;
+          margin-bottom: 14px;
+        }
+        .format-options {
+          display: flex;
+          gap: 12px;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+        .format-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 24px;
+          border-radius: 100px;
+          border: 1px solid var(--border);
+          background: var(--bg-card);
+          color: var(--text-secondary);
+          font-size: 0.88rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .format-btn.active {
+          background: var(--gold-light);
+          border-color: var(--gold);
+          color: var(--gold);
+        }
+        .format-btn:hover { border-color: var(--border-hover); }
+        .email-row {
+          display: flex;
+          gap: 12px;
+          max-width: 500px;
+          margin: 0 auto;
+        }
+        .email-input-wrap {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: 100px;
+          padding: 0 18px;
+          transition: border-color 0.2s;
+          color: var(--text-muted);
+        }
+        .email-input-wrap:focus-within { border-color: var(--gold); }
+        .email-input {
+          flex: 1;
+          background: none;
+          border: none;
+          outline: none;
+          padding: 14px 0;
+          color: var(--text-primary);
+          font-size: 0.9rem;
+          font-family: inherit;
+        }
+        .email-input::placeholder { color: var(--text-muted); }
+        .subscribe-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 14px 28px;
+          border-radius: 100px;
+          background: linear-gradient(135deg, var(--gold), #c4923a);
+          color: #0a0e17;
+          border: none;
+          font-size: 0.9rem;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.2s;
+          white-space: nowrap;
+        }
+        .subscribe-btn:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 20px rgba(212,168,83,0.3);
+        }
+        .subscribed-msg {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          color: #10b981;
+          font-weight: 600;
+          font-size: 1rem;
+          padding: 16px;
+          background: rgba(16,185,129,0.08);
+          border-radius: 100px;
+          max-width: 500px;
+          margin: 0 auto;
+        }
+
+        /* ── FOOTER ── */
+        .footer {
+          position: relative;
+          z-index: 1;
+          text-align: center;
+          padding: 60px 40px;
+          border-top: 1px solid var(--border);
+          color: var(--text-muted);
+          font-size: 0.85rem;
+        }
+        .footer-logo {
+          font-family: 'Playfair Display', serif;
+          font-size: 1.3rem;
+          font-weight: 700;
+          color: var(--text-primary);
+          margin-bottom: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+        }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── MOBILE ── */
+        @media (max-width: 768px) {
+          .navbar { padding: 14px 20px; }
+          .nav-links { display: none; }
+          .menu-toggle { display: block; }
+          .hero { padding: 140px 20px 60px; }
+          .hero h1 { font-size: 2.2rem; }
+          .industry-section { padding: 40px 20px; }
+          .industry-nav { padding: 30px 20px 0; }
+          .howto-section, .faq-section, .subscribe-section { padding: 50px 20px; }
+          .stories-grid { grid-template-columns: 1fr; }
+          .howto-grid { grid-template-columns: 1fr; }
+          .subscribe-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+          .email-row { flex-direction: column; }
+          .section-heading { font-size: 1.8rem; }
+          .macro-banner { padding: 16px 20px; }
+        }
+      `}</style>
+
+      <div className="app">
+        <div className="bg-glow" />
+        <div className="bg-grid" />
+
+        {/* NAVBAR */}
+        <nav className={`navbar ${scrolled ? "scrolled" : ""}`}>
+          <div className="logo">
+            <span className="logo-dot" />
+            The Morning Brief
+          </div>
+          <ul className="nav-links">
+            <li><a href="#industries">Industries</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a href="#subscribe" className="nav-cta">Subscribe</a></li>
+          </ul>
+          <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </nav>
+
+        {/* HERO */}
+        <header className="hero">
+          <div className="hero-badge"><Globe size={14} /> 7 Industries. One Brief. Every Morning.</div>
+          <h1>
+            Your Daily<br />
+            Intelligence <span className="gold">Brief</span>
+          </h1>
+          <p>
+            Cut through the noise. The Morning Brief synthesizes top stories across technology, finance, healthcare, energy, real estate, politics, and startups — delivered as a concise audio briefing and PDF before your first coffee.
+          </p>
+          <div className="hero-actions">
+            <a href="#subscribe" className="hero-btn primary">
+              <Headphones size={18} /> Start Listening
+            </a>
+            <a href="#how-it-works" className="hero-btn secondary">
+              <BookOpen size={18} /> How It Works
+            </a>
+          </div>
+        </header>
+
+        {/* MACRO BANNER */}
+        <div className="macro-banner">
+          <div className="macro-banner-inner">
+            {[...Array(2)].map((_, dupeIdx) => (
+              <div key={dupeIdx} style={{ display: "flex", gap: 40 }}>
+                <span className="macro-item"><BarChart3 size={14} /> S&P 500 <span className="up">+1.2%</span></span>
+                <span className="macro-item">NASDAQ <span className="up">+1.8%</span></span>
+                <span className="macro-item">10Y Treasury <span className="down">4.18%</span></span>
+                <span className="macro-item">Bitcoin <span className="up">$152,340</span></span>
+                <span className="macro-item">Oil (WTI) <span className="down">$71.20</span></span>
+                <span className="macro-item">Gold <span className="up">$3,180</span></span>
+                <span className="macro-item">EUR/USD <span className="down">1.082</span></span>
+                <span className="macro-item"><Globe size={14} /> VIX <span className="up">14.2</span></span>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Cards */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {items.map((item, idx) => (
-            <div
-              key={`${activeTab}-${idx}`}
-              className="card-item"
-              style={{
-                background: idx === 0 ? `${item.tagColor}0A` : "#fff",
-                borderRadius: 14,
-                padding: idx === 0 ? "24px 24px" : "20px 22px",
-                border: `1px solid ${idx === 0 ? item.tagColor + "30" : "rgba(0,0,0,0.05)"}`,
-                borderLeft: `4px solid ${item.tagColor}`,
-                cursor: "pointer",
-                transition:
-                  "transform 0.25s cubic-bezier(0.16,1,0.3,1), box-shadow 0.25s ease",
-                animationDelay: `${idx * 0.06}s`,
-                position: "relative",
-                overflow: "hidden",
-              }}
-            >
-              {/* Top meta line */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  marginBottom: 10,
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                  }}
-                >
-                  <span
-                    style={{
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontSize: 9,
-                      fontWeight: 700,
-                      letterSpacing: "0.08em",
-                      color: item.tagColor,
-                      background: `${item.tagColor}28`,
-                      padding: "3px 8px",
-                      borderRadius: 4,
-                    }}
-                  >
-                    {item.tag}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontSize: 11,
-                      color: "#AAA",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {item.time}
-                  </span>
-                </div>
-                {/* Play button */}
-                <div
-                  className="play-btn"
-                  style={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: "50%",
-                    border: "1.5px solid #D4D4CC",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 10,
-                    color: "#AAA",
-                    flexShrink: 0,
-                  }}
-                  title="Listen to this brief"
-                >
-                  ▶
-                </div>
+        {/* INDUSTRY NAV */}
+        <div className="industry-nav" id="industries">
+          {industries.map((ind) => {
+            const Icon = ind.icon;
+            return (
+              <a key={ind.id} href={`#${ind.id}`} className="industry-nav-btn">
+                <Icon size={16} style={{ color: ind.accent }} /> {ind.name}
+              </a>
+            );
+          })}
+        </div>
+
+        {/* INDUSTRY SECTIONS */}
+        {industries.map((ind, i) => (
+          <IndustrySection key={ind.id} industry={ind} index={i} />
+        ))}
+
+        {/* HOW IT WORKS */}
+        <section className="howto-section" id="how-it-works">
+          <div style={{ textAlign: "center", marginBottom: 48 }}>
+            <div className="section-badge"><MousePointerClick size={14} /> Navigate Like a Pro</div>
+            <h2 className="section-heading">How It Works</h2>
+            <p className="section-desc" style={{ margin: "0 auto" }}>
+              The Morning Brief is designed to get you informed in minutes, not hours. Here's how to make the most of it.
+            </p>
+          </div>
+          <div className="howto-grid">
+            {howToSteps.map((step, i) => (
+              <div key={i} className="howto-card">
+                <div className="howto-icon"><step.icon size={24} /></div>
+                <h3>{step.title}</h3>
+                <p>{step.desc}</p>
               </div>
+            ))}
+          </div>
+        </section>
 
-              {/* Headline */}
-              <h3
-                style={{
-                  fontFamily: "'Newsreader', serif",
-                  fontSize: idx === 0 ? 22 : 18.5,
-                  fontWeight: idx === 0 ? 700 : 600,
-                  lineHeight: 1.3,
-                  color: "#1A1A1A",
-                  marginBottom: 8,
-                  letterSpacing: "-0.015em",
-                }}
-              >
-                {item.headline}
-              </h3>
+        {/* SUBSCRIBE */}
+        <SubscribeSection />
 
-              {/* Summary */}
-              <p
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: 13.5,
-                  lineHeight: 1.65,
-                  color: "#555",
-                  fontWeight: 400,
-                  marginBottom: 12,
-                }}
-              >
-                {item.summary}
-              </p>
-
-              {/* Bottom meta */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <span
-                  style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: 11,
-                    color: "#BBB",
-                    fontWeight: 400,
-                  }}
-                >
-                  {item.source}
-                </span>
-                <span
-                  style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: 11,
-                    color: "#BBB",
-                    fontWeight: 500,
-                  }}
-                >
-                  {item.readTime} read
-                </span>
-              </div>
-            </div>
+        {/* FAQ */}
+        <section className="faq-section" id="faq">
+          <div style={{ textAlign: "center", marginBottom: 40 }}>
+            <div className="section-badge"><HelpCircle size={14} /> Got Questions?</div>
+            <h2 className="section-heading">FAQ</h2>
+          </div>
+          {faqs.map((faq, i) => (
+            <FaqItem key={i} faq={faq} />
           ))}
-        </div>
+        </section>
 
-        {/* Footer */}
-        <div
-          style={{
-            marginTop: 40,
-            paddingTop: 24,
-            borderTop: "1px solid rgba(0,0,0,0.06)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <p
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: 12,
-              color: "#BBB",
-              fontWeight: 400,
-            }}
-          >
-            The Morning Brief · Researched and synthesized from 40+ sources ·
-            Updated every weekday at 6 AM ET
-          </p>
-          <p
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: 11,
-              color: "#CCC",
-            }}
-          >
-            © 2026
-          </p>
-        </div>
-      </main>
-    </div>
+        {/* FOOTER */}
+        <footer className="footer">
+          <div className="footer-logo">
+            <span className="logo-dot" /> The Morning Brief
+          </div>
+          <p>Your daily intelligence brief — across every industry that matters.</p>
+          <p style={{ marginTop: 8, fontSize: "0.78rem" }}>© 2026 The Morning Brief. All rights reserved.</p>
+        </footer>
+      </div>
+    </>
   );
 }
