@@ -253,8 +253,61 @@ function SubscribeSection() {
   );
 }
 
+/* ───────────────────── HEALTHCARE PAGE ───────────────────── */
+function HealthcarePage({ onBack }) {
+  const health = industries.find((i) => i.id === "health");
+  const [activeSub, setActiveSub] = useState(null);
+  const filtered = activeSub ? health.stories.filter((s) => s.sub === activeSub) : health.stories;
+
+  return (
+    <div className="app">
+      <div className="bg-glow" /><div className="bg-grid" />
+      <section style={{ position: "relative", zIndex: 1, maxWidth: 1100, margin: "0 auto", padding: "120px 40px 80px" }}>
+        <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--bg-card)", border: "1px solid var(--border)", color: "var(--text-secondary)", borderRadius: 100, padding: "8px 18px", fontSize: ".85rem", fontWeight: 500, cursor: "pointer", marginBottom: 40, transition: "all .2s" }}
+          onMouseOver={(e) => e.currentTarget.style.color = "var(--text-primary)"} onMouseOut={(e) => e.currentTarget.style.color = "var(--text-secondary)"}>
+          ← Back to Home
+        </button>
+        <div className="industry-header">
+          <div className="industry-icon-wrap" style={{ background: health.accentLight }}>
+            <HeartPulse size={28} style={{ color: health.accent }} strokeWidth={1.8} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <h2 className="industry-title">{health.name}</h2>
+            <p className="industry-tagline">{health.tagline}</p>
+          </div>
+          <a href={health.pdf} download className="pdf-download-btn" style={{ "--accent": health.accent, "--accent-light": health.accentLight }}>
+            <Download size={16} /> PDF Brief
+          </a>
+        </div>
+        <AudioPlayer industry={health} />
+        <div className="subsections">
+          <span className={"subsection-chip " + (!activeSub ? "chip-active" : "")} style={{ borderColor: health.accent, color: !activeSub ? "white" : health.accent, background: !activeSub ? health.accent : health.accentLight }} onClick={() => setActiveSub(null)}>All</span>
+          {health.subsections.map((sub) => (
+            <span key={sub} className={"subsection-chip " + (activeSub === sub ? "chip-active" : "")} style={{ borderColor: health.accent, color: activeSub === sub ? "white" : health.accent, background: activeSub === sub ? health.accent : health.accentLight }} onClick={() => setActiveSub(activeSub === sub ? null : sub)}>{sub}</span>
+          ))}
+        </div>
+        <div className="stories-grid">
+          {filtered.map((story, i) => (
+            <a key={i} href={story.url} target="_blank" rel="noopener noreferrer" className="story-card" style={{ "--card-accent": health.accent, textDecoration: "none" }}>
+              <div className="story-tag" style={{ background: health.accentLight, color: health.accent }}>{story.tag}</div>
+              <h3 className="story-title">{story.title}</h3>
+              <p className="story-summary">{story.summary}</p>
+              <div className="story-footer">
+                <span className="story-time"><Clock size={13} /> {story.time}</span>
+                <span className="story-source">{story.source}</span>
+                <span className="story-read-more" style={{ color: health.accent }}>Read <ExternalLink size={13} /></span>
+              </div>
+            </a>
+          ))}
+        </div>
+        {activeSub && filtered.length === 0 && <p style={{ color: "var(--text-muted)", textAlign: "center", padding: 40 }}>No stories in this subsection today.</p>}
+      </section>
+    </div>
+  );
+}
+
 /* ───────────────────── MOBILE MENU ───────────────────── */
-function MobileMenu({ open, onClose }) {
+function MobileMenu({ open, onClose, onHealthcare }) {
   if (!open) return null;
   return (
     <div className="mobile-menu-overlay" onClick={onClose}>
@@ -262,6 +315,7 @@ function MobileMenu({ open, onClose }) {
         <div className="mobile-menu-header"><div className="logo"><span className="logo-dot" />Brevity</div><button className="mobile-close-btn" onClick={onClose}><X size={24} /></button></div>
         <ul className="mobile-menu-links">
           <li><a href="#industries" onClick={onClose}>Industries</a></li>
+          <li><a href="#" onClick={(e) => { e.preventDefault(); onClose(); onHealthcare(); }}>Healthcare</a></li>
           <li><a href="#how-it-works" onClick={onClose}>How It Works</a></li>
           <li><a href="#faq" onClick={onClose}>FAQ</a></li>
           <li><a href="#subscribe" onClick={onClose} className="mobile-cta">Subscribe</a></li>
@@ -278,8 +332,60 @@ function MobileMenu({ open, onClose }) {
 export default function MorningBrief() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [currentPage, setCurrentPage] = useState("home");
   useEffect(() => { const h = () => setScrolled(window.scrollY > 40); window.addEventListener("scroll", h); return () => window.removeEventListener("scroll", h); }, []);
   useEffect(() => { document.body.style.overflow = menuOpen ? "hidden" : ""; return () => { document.body.style.overflow = ""; }; }, [menuOpen]);
+
+  if (currentPage === "healthcare") {
+    return (
+      <>
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap');
+          :root{--bg-primary:#0a0e17;--bg-secondary:#111827;--bg-card:#161e2e;--bg-card-hover:#1c2740;--border:rgba(255,255,255,0.06);--border-hover:rgba(255,255,255,0.12);--text-primary:#f1f5f9;--text-secondary:#94a3b8;--text-muted:#64748b;--gold:#d4a853;--gold-light:rgba(212,168,83,0.12);}
+          *{margin:0;padding:0;box-sizing:border-box;} .app{font-family:'DM Sans',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;overflow-x:hidden;}
+          .bg-glow{position:fixed;top:-300px;left:50%;transform:translateX(-50%);width:900px;height:900px;background:radial-gradient(circle,rgba(244,63,94,0.06) 0%,transparent 70%);pointer-events:none;z-index:0;}
+          .bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
+          .navbar{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 40px;display:flex;align-items:center;justify-content:space-between;transition:all .3s;backdrop-filter:blur(20px);background:rgba(10,14,23,0.92);border-bottom:1px solid var(--border);}
+          .logo{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;letter-spacing:-0.02em;display:flex;align-items:center;gap:10px;color:var(--text-primary);text-decoration:none;cursor:pointer;}
+          .logo-dot{width:10px;height:10px;background:var(--gold);border-radius:50%;display:inline-block;box-shadow:0 0 12px rgba(212,168,83,0.5);}
+          .nav-links{display:flex;gap:32px;align-items:center;list-style:none;} .nav-links a{text-decoration:none;color:var(--text-secondary);font-size:.88rem;font-weight:500;transition:color .2s;cursor:pointer;} .nav-links a:hover{color:var(--gold);}
+          .nav-active{color:var(--gold)!important;}
+          .nav-cta{background:linear-gradient(135deg,var(--gold),#c4923a);color:#0a0e17!important;padding:10px 22px;border-radius:100px;font-weight:600!important;font-size:.85rem!important;}
+          .industry-header{display:flex;align-items:center;gap:18px;margin-bottom:24px;flex-wrap:wrap;}
+          .industry-icon-wrap{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+          .industry-title{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;letter-spacing:-0.01em;} .industry-tagline{color:var(--text-muted);font-size:.9rem;margin-top:2px;}
+          .pdf-download-btn{display:flex;align-items:center;gap:6px;padding:8px 18px;border-radius:100px;background:var(--accent-light);color:var(--accent);border:1px solid var(--accent);font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none;margin-left:auto;} .pdf-download-btn:hover{background:var(--accent);color:white;}
+          .audio-player{display:flex;align-items:center;gap:14px;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:14px 20px;margin-bottom:24px;}
+          .play-btn{width:42px;height:42px;border-radius:50%;background:var(--accent);border:none;color:white;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:transform .15s;} .play-btn:hover{transform:scale(1.08);}
+          .audio-info{flex:1;min-width:0;} .audio-label{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600;color:var(--text-primary);margin-bottom:8px;}
+          .progress-track{width:100%;height:4px;background:rgba(255,255,255,0.08);border-radius:100px;overflow:hidden;} .progress-fill{height:100%;border-radius:100px;transition:width .1s linear;}
+          .audio-meta{display:flex;justify-content:space-between;font-size:.72rem;color:var(--text-muted);margin-top:4px;}
+          .subsections{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
+          .subsection-chip{padding:6px 14px;border-radius:100px;font-size:.78rem;font-weight:600;border:1px solid;cursor:pointer;transition:all .2s;user-select:none;}
+          .stories-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+          a.story-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:22px;cursor:pointer;transition:all .25s;display:block;color:inherit;text-decoration:none;} a.story-card:hover{border-color:var(--card-accent);transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,0,0,0.3);}
+          .story-tag{display:inline-block;padding:4px 10px;border-radius:6px;font-size:.72rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;margin-bottom:12px;}
+          .story-title{font-size:1rem;font-weight:600;line-height:1.45;margin-bottom:8px;color:var(--text-primary);}
+          .story-summary{font-size:.85rem;color:var(--text-secondary);line-height:1.55;margin-bottom:16px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+          .story-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;} .story-time{display:flex;align-items:center;gap:5px;font-size:.78rem;color:var(--text-muted);} .story-source{font-size:.72rem;color:var(--text-muted);font-weight:500;} .story-read-more{display:flex;align-items:center;gap:4px;font-size:.82rem;font-weight:600;} a.story-card:hover .story-read-more{gap:8px;}
+          @media(max-width:768px){.navbar{padding:14px 20px;} section{padding:100px 20px 60px!important;} .stories-grid{grid-template-columns:1fr;} .industry-header{flex-wrap:wrap;} .pdf-download-btn{margin-left:0;}}
+        `}</style>
+        <div className="app">
+          <div className="bg-glow" /><div className="bg-grid" />
+          <nav className="navbar">
+            <a href="#" className="logo" onClick={(e) => { e.preventDefault(); setCurrentPage("home"); }}><span className="logo-dot" />Brevity</a>
+            <ul className="nav-links">
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage("home"); }}>Industries</a></li>
+              <li><a href="#" className="nav-active" onClick={(e) => e.preventDefault()}>Healthcare</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage("home"); window.setTimeout(() => document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" }), 100); }}>How It Works</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage("home"); window.setTimeout(() => document.getElementById("subscribe")?.scrollIntoView({ behavior: "smooth" }), 100); }} className="nav-cta">Subscribe</a></li>
+            </ul>
+          </nav>
+          <HealthcarePage onBack={() => setCurrentPage("home")} />
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -370,10 +476,10 @@ export default function MorningBrief() {
         <div className="bg-glow" /><div className="bg-grid" />
         <nav className={"navbar " + (scrolled ? "scrolled" : "")}>
           <a href="#" className="logo" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }}><span className="logo-dot" />Brevity</a>
-          <ul className="nav-links"><li><a href="#industries">Industries</a></li><li><a href="#how-it-works">How It Works</a></li><li><a href="#faq">FAQ</a></li><li><a href="#subscribe" className="nav-cta">Subscribe</a></li></ul>
+          <ul className="nav-links"><li><a href="#industries">Industries</a></li><li><a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage("healthcare"); window.scrollTo({ top: 0 }); }}>Healthcare</a></li><li><a href="#how-it-works">How It Works</a></li><li><a href="#faq">FAQ</a></li><li><a href="#subscribe" className="nav-cta">Subscribe</a></li></ul>
           <button className="menu-toggle" onClick={() => setMenuOpen(true)}><Menu size={24} /></button>
         </nav>
-        <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
+        <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} onHealthcare={() => { setCurrentPage("healthcare"); window.scrollTo({ top: 0 }); }} />
         <header className="hero">
           <div className="hero-badge"><Globe size={14} /> 7 Industries. One Brief. Every Morning.</div>
           <h1>Your Daily<br />Intelligence <span className="gold">Brief</span></h1>
